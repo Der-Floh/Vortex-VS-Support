@@ -41,7 +41,6 @@ const OLD_HIER = [
 ];
 
 let CONTEXT_API;
-let DISCOVERY_PATH;
 
 /**
  * Registers the game with the provided context.
@@ -78,9 +77,7 @@ function registerInstallers(context) {
  * @param {Object} context - The modding context object.
  */
 function setupEventListeners(context) {
-  try {
-    context.api.events.on('did-install-mod', async (gameId, archiveId, modId) => await onDidInstallMod(gameId, archiveId, modId, context));
-  } catch { }
+  context.api.events.on('did-install-mod', async (gameId, archiveId, modId) => await onDidInstallMod(gameId, archiveId, modId, context));
 }
 
 /**
@@ -116,12 +113,19 @@ async function findGame() {
 }
 
 /**
- * Prepares for modding by setting the global discovery path and checking the engine version.
+ * Gets the current game discovery object from the Vortex state.
+ * @returns {Object|undefined} The game discovery object, or undefined if the game is not discovered.
+ */
+function getDiscovery() {
+  return vortex_api.selectors.discoveryByGame(CONTEXT_API.getState(), GAME.id);
+}
+
+/**
+ * Prepares for modding by checking the engine version and the mod loader.
  * @param {Object} discovery - The game discovery object.
  * @returns {Promise<boolean>} A promise that resolves true if the modding setup is ensured successfully.
  */
 async function prepareForModding(discovery) {
-  DISCOVERY_PATH = discovery;
   const isNewEngine = await checkEngineVersion(discovery);
   return await ensureModdingSetup(discovery, isNewEngine);
 }
@@ -132,6 +136,8 @@ async function prepareForModding(discovery) {
  * @returns {Promise<boolean>} - A promise that resolves true if the engine version is valid, false otherwise.
  */
 async function checkEngineVersion(discovery) {
+  if (!discovery?.path)
+    return false;
   const enginePath = path.join(discovery.path, 'UnityCrashHandler64.exe');
   try {
     await fs.statAsync(enginePath);
@@ -216,7 +222,7 @@ async function checkForMelonLoader(discovery) {
 async function testSupportedContentOldEngine(files, gameId, modPath) {
   if (gameId !== GAME.id)
     return { supported: false, requiredFiles: [] };
-  const isNewEngine = await checkEngineVersion(DISCOVERY_PATH);
+  const isNewEngine = await checkEngineVersion(getDiscovery());
   let supported = files.some(file => OLD_EXTS.some(ext => path.extname(file).toLowerCase() === ext.extension));
   if (supported === false && files.some(file => file.replaceAll('\\', '/').includes('renderer/') || file.replaceAll('\\', '/').includes('assets/')))
     supported = true;
@@ -242,7 +248,7 @@ async function testSupportedContentOldEngine(files, gameId, modPath) {
 async function testSupportedContentNewEngine(files, gameId, modPath) {
   if (gameId !== GAME.id)
     return { supported: false, requiredFiles: [] };
-  const isNewEngine = await checkEngineVersion(DISCOVERY_PATH);
+  const isNewEngine = await checkEngineVersion(getDiscovery());
   const supported = files.some(file => NEW_EXTS.some(ext => path.extname(file).toLowerCase() === ext.extension));
   if (supported && !isNewEngine) {
     CONTEXT_API.sendNotification({
@@ -404,13 +410,15 @@ async function installContent(files) {
  * @returns {Promise} - A promise that resolves when the function completes.
  */
 async function onDidInstallMod(gameId, archiveId, modId, context) {
+  if (gameId !== GAME.id)
+    return;
   const state = context.api.getState();
   const installPath = vortex_api.selectors.installPathForGame(state, gameId);
   const mod = state.persistent.mods?.[gameId]?.[modId];
   if (!installPath || !mod?.installationPath)
     return;
 
-  const isNewEngine = await checkEngineVersion(DISCOVERY_PATH);
+  const isNewEngine = await checkEngineVersion(getDiscovery());
   if (isNewEngine === true)
     return;
 
