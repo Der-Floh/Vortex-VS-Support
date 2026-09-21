@@ -5,7 +5,7 @@ import { LEGACY_EXTENSION_NAME, NOTIFICATION_IDS } from '../common/constants';
 /**
  * Warns if the extension's 2.2.x version is still installed next to this one.
  *
- * 2.3.0 added an id to `info.json`, which changed the plugin folder. Updates
+ * 3.0.0 added an id to `info.json`, which changed the plugin folder. Updates
  * from Nexus Mods remove the old folder, but a manual install keeps it, and
  * then both versions register the game.
  *

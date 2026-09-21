@@ -75,7 +75,7 @@ Afterwards, restart Vortex and you can begin installing supported Vampire Surviv
 
 ### Upgrading from 2.2.x
 
-Version 2.3.0 is installed into a new folder. If you update through Vortex, the old version is removed automatically. If you install 2.3.0 manually, remove the old "Vampire Survivors Support" extension in the Extensions tab and restart Vortex; the extension warns you while both are installed.
+Version 3.0.0 is installed into a new folder. If you update through Vortex, the old version is removed automatically. If you install 3.0.0 manually, remove the old "Vampire Survivors Support" extension in the Extensions tab and restart Vortex; the extension warns you while both are installed.
 
 ## Known Issues
 
