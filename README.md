@@ -11,10 +11,10 @@ This extension adds support for Vampire Survivors to [Vortex Mod Manager](https:
 - Mods that are designed for the [VS ModLoader](https://www.nexusmods.com/vampiresurvivors/mods/64) by Kekos and use the right file structure (e.g resources/app/.webpack/.../img.jpg)
 - Other Old Engine mods that use the right file structure (e.g resources/app/.webpack/.../img.jpg). Archives that start further down, for example with `assets/` or `renderer/`, are placed automatically.
 - New Engine mods for [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (e.g Mods/mod.dll)
-- New Engine mods for the IL2CPP build of [BepInEx 6](https://github.com/BepInEx/BepInEx/releases) (e.g BepInEx/plugins/mod.dll)
+- New Engine mods for the IL2CPP build of [BepInEx](https://builds.bepinex.dev/projects/bepinex_be) (e.g BepInEx/plugins/mod.dll)
 
 Note that Old Engine mods that change the same file and **DON'T** use the [VS ModLoader](https://www.nexusmods.com/vampiresurvivors/mods/64) overwrite each other, so the VS ModLoader is recommended.
-Note that New Engine mods need MelonLoader (recommended) or the IL2CPP build of BepInEx 6. BepInEx 5 can't load mods for the New Engine.
+Note that New Engine mods need MelonLoader (recommended) or a recent IL2CPP build of BepInEx (see [Known Issues](#known-issues)). BepInEx 5 can't load mods for the New Engine.
 
 Mods that only contain the changed file, without its folders, still won't work.
 
@@ -89,6 +89,22 @@ For the [Multiperpose QoL Mod](https://www.nexusmods.com/vampiresurvivors/mods/5
 
 Vortex's built-in BepInEx support creates empty `BepInEx`, `BepInEx/plugins` and `BepInEx/patchers` folders in the game folder whenever Vampire Survivors is opened in Vortex, even if you only use MelonLoader. They're harmless.
 
+### BepInEx doesn't load any mods (New Engine)
+
+The New Engine runs on Unity 6, which older BepInEx builds can't read. BepInEx then loads no mods, and `BepInEx/LogOutput.log` in the game folder shows an error like this:
+
+```txt
+Unsupported metadata version found! We support 23-29, got 31
+```
+
+At the time of writing, the releases on BepInEx's GitHub page are too old for the game. Use the newest bleeding-edge build from [builds.bepinex.dev](https://builds.bepinex.dev/projects/bepinex_be) instead:
+
+1. Open the newest build at the top of the list and download the file that starts with `BepInEx-Unity.IL2CPP-win-x64`.
+2. In Vortex, remove the old BepInEx mod, install the new zip like any other mod and deploy.
+3. Start the game. The first start takes a while, because BepInEx generates the files it needs for the game.
+
+Build 755 was the first one that supports the game's Unity version; the first line of `LogOutput.log` shows which build you have (for example `be.788`). If BepInEx stops working after a game update, try the newest bleeding-edge build first.
+
 ### Mods for the other engine
 
 If you install a mod that was made for the other engine (for example an Old Engine mod while the game runs the New Engine), the extension shows a warning, because the mod won't load.
@@ -149,7 +165,7 @@ Note that the [VS ModLoader](https://www.nexusmods.com/vampiresurvivors/mods/64)
 
 ### New Engine
 
-Mods for the New Engine are `.dll` files for [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) or for the IL2CPP build of [BepInEx 6](https://github.com/BepInEx/BepInEx/releases).
+Mods for the New Engine are `.dll` files for [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) or for the IL2CPP build of [BepInEx](https://builds.bepinex.dev/projects/bepinex_be).
 
 By default the extension installs only the files the mod loaders need, without their folders:
 
@@ -192,6 +208,6 @@ If you have a file for example a font that needs to go in the UserData folder, a
   |--> font.ttf
 ```
 
-MelonLoader and BepInEx release zips can also be installed through Vortex like a mod.
+The MelonLoader and BepInEx downloads can also be installed through Vortex like a mod.
 
 [!["Buy me a Floppy Disk"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/der_floh)

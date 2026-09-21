@@ -43,7 +43,10 @@ export const MELON_LOADER = {
     downloadPage: 'https://github.com/LavaGang/MelonLoader/releases/latest',
 };
 
-/** BepInEx, a mod loader for the new engine; Vampire Survivors needs the IL2CPP build of BepInEx 6. */
+/**
+ * BepInEx, a mod loader for the new engine. Vampire Survivors needs a recent
+ * IL2CPP build; older builds can't read the game's Unity version.
+ */
 export const BEPINEX = {
     name: 'BepInEx',
     modFile: DLL_EXTENSION,
@@ -55,7 +58,9 @@ export const BEPINEX = {
     legacyDetectionFiles: [
         path.join('BepInEx', 'core', 'BepInEx.dll'),
     ],
-    downloadPage: 'https://github.com/BepInEx/BepInEx/releases',
+    downloadPage: 'https://builds.bepinex.dev/projects/bepinex_be',
+    /** Start of the download's file name for the build Vampire Survivors needs. */
+    downloadName: 'BepInEx-Unity.IL2CPP-win-x64',
 };
 
 /** VS Mod Loader by Kekos, the mod loader for the old (Electron) engine. */

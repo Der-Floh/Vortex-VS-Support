@@ -6,8 +6,8 @@ import { fileExistsSync } from '../common/files';
 import { getDiscovery } from './discovery';
 
 /**
- * Checks whether a working mod loader (MelonLoader or BepInEx 6) is installed
- * in the game folder.
+ * Checks whether a working mod loader (MelonLoader, or BepInEx other than
+ * BepInEx 5) is installed in the game folder.
  *
  * @param discovery - The game discovery result from Vortex, if the game has been discovered.
  * @returns True if at least one working mod loader is detected; otherwise false.
@@ -27,10 +27,11 @@ export function isMelonLoaderInstalled(discovery?: types.IDiscoveryResult): bool
 }
 
 /**
- * Checks whether BepInEx 6 is installed in the game folder.
+ * Checks whether BepInEx is installed in the game folder. BepInEx 5 doesn't
+ * count, see {@link isLegacyBepInExInstalled}.
  *
  * @param discovery - The game discovery result from Vortex, if the game has been discovered.
- * @returns True if BepInEx 6 is installed; otherwise false.
+ * @returns True if BepInEx is installed; otherwise false.
  */
 export function isBepInExInstalled(discovery?: types.IDiscoveryResult): boolean {
     return anyFileExists(discovery, BEPINEX.detectionFiles);

@@ -49,9 +49,9 @@ function notifyLegacyBepInEx(api: types.IExtensionApi): void {
         id: NOTIFICATION_IDS.legacyBepInEx,
         type: 'warning',
         title: 'BepInEx 5 installed',
-        message: 'BepInEx 5 can\'t load mods for Vampire Survivors (New Engine), which is an IL2CPP game. Install the IL2CPP build of BepInEx 6 instead.',
+        message: `BepInEx 5 can't load mods for Vampire Survivors (New Engine), which is an IL2CPP game. Replace it with the newest "${BEPINEX.downloadName}" build of BepInEx.`,
         actions: [
-            apiMakeOpenUrlFunction('Get BepInEx 6', BEPINEX.downloadPage),
+            apiMakeOpenUrlFunction('Get BepInEx', BEPINEX.downloadPage),
         ],
     });
 }
@@ -68,10 +68,10 @@ function notifyNoModLoader(api: types.IExtensionApi, discovery: types.IDiscovery
         id: NOTIFICATION_IDS.modLoaderMissing,
         type: 'warning',
         title: 'No mod loader installed',
-        message: 'Mods for Vampire Survivors (New Engine) need MelonLoader (recommended) or the IL2CPP build of BepInEx 6.',
+        message: `Mods for Vampire Survivors (New Engine) need MelonLoader (recommended) or BepInEx. For BepInEx, download the newest "${BEPINEX.downloadName}" build.`,
         actions: [
             apiMakeOpenUrlFunction('Get MelonLoader', MELON_LOADER.downloadPage),
-            apiMakeOpenUrlFunction('Get BepInEx 6', BEPINEX.downloadPage),
+            apiMakeOpenUrlFunction('Get BepInEx', BEPINEX.downloadPage),
             apiMakeCheckAndDismissFunction('Check again', NOTIFICATION_IDS.modLoaderMissing, api, () => anyModLoaderInstalled(discovery)),
         ],
     });

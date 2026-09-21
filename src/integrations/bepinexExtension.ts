@@ -18,7 +18,7 @@ export function registerBepInExSupport(api: types.IExtensionApi): void {
             gameId: GAME.id,
             autoDownloadBepInEx: false,
             // Without this, the BepInEx extension's update check compares the installed
-            // BepInEx 6 with its bundled BepInEx 5 download and disables the installed one.
+            // BepInEx with its bundled BepInEx 5 download and disables the installed one.
             forceGithubDownload: true,
             architecture: 'x64',
             unityBuild: 'unityil2cpp',
