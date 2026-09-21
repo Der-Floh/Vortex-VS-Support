@@ -14,10 +14,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
 
@@ -44,24 +44,35 @@ jobs:
         run: |
           test -f "${{ steps.pkg.outputs.zip_path }}"
           unzip -l "${{ steps.pkg.outputs.zip_path }}"
-          if [ "${{ github.event_name }}" = "release" ]; then
-            test "${{ github.event.release.tag_name }}" = "v${{ steps.pkg.outputs.version }}"
-          fi
+
+      - name: Check release settings
+        if: github.event_name == 'release'
+        shell: bash
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          VERSION: ${{ steps.pkg.outputs.version }}
+          NEXUSMODS_API_KEY: ${{ secrets.NEXUSMODS_API_KEY }}
+          NEXUSMODS_FILE_ID: ${{ vars.NEXUSMODS_FILE_ID }}
+        run: |
+          [ "$TAG" = "v$VERSION" ] || { echo "::error::The release tag $TAG doesn't match v$VERSION from package.json."; exit 1; }
+          [ -n "$NEXUSMODS_API_KEY" ] || { echo "::error::The NEXUSMODS_API_KEY secret isn't set."; exit 1; }
+          [ -n "$NEXUSMODS_FILE_ID" ] || { echo "::error::The NEXUSMODS_FILE_ID variable isn't set."; exit 1; }
 
       - name: Upload zip to release
         if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: ${{ steps.pkg.outputs.zip_path }}
 
       - name: Upload to Nexus Mods
         if: github.event_name == 'release'
-        uses: Nexus-Mods/upload-action@v1.0.0-beta.5
+        uses: Nexus-Mods/upload-action@v1.0.0-beta.10
         with:
           api_key: ${{ secrets.NEXUSMODS_API_KEY }}
-          file_group_id: ${{ vars.NEXUS_FILE_GROUP_ID }}
+          file_id: ${{ vars.NEXUSMODS_FILE_ID }}
           filename: ${{ steps.pkg.outputs.zip_path }}
           version: ${{ steps.pkg.outputs.version }}
           display_name: "${{ steps.pkg.outputs.display_name }} Support v${{ steps.pkg.outputs.version }}"
           description: Adds support for ${{ steps.pkg.outputs.display_name }} to Vortex
-          file_category: main
+          category: main
+          update_mod_version: true
