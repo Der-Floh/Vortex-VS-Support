@@ -1,11 +1,22 @@
 import * as path from 'path';
-import { BEPINEX, DLL_EXTENSION, MELON_LOADER, VS_MOD_LOADER } from './constants';
+import { BEPINEX, DLL_EXTENSION, MARKERS, MELON_LOADER, VS_MOD_LOADER } from './constants';
 
-const MARKER_FILES = [MELON_LOADER.detectorFile, BEPINEX.detectorFile, MELON_LOADER.keepStructureFile];
+const MARKER_FILES = Object.values(MARKERS);
 const OLD_ENGINE_ROOTS = new Set(VS_MOD_LOADER.hier.flatMap(hierPath => hierPath.split('/')));
+
+/** A new-engine mod loader. */
+export type Loader = 'melonloader' | 'bepinex';
+
+/** Which new-engine mod loaders are installed, on disk or as Vortex mods. */
+export interface LoaderPresence {
+    melonLoader: boolean;
+    bepInEx: boolean;
+}
 
 /** What an archive's file list reveals about the mod inside it. */
 export interface ArchiveInfo {
+    /** Contains at least one file besides marker files. */
+    hasContent: boolean;
     /** Contains a `.dll` file, which only new-engine mods have. */
     hasDll: boolean;
     /** Contains a `.js` file, which only old-engine mods have. */
@@ -22,6 +33,10 @@ export interface ArchiveInfo {
     mentionsBepInEx: boolean;
     /** A top-level entry is part of the old engine's folder layout, so the old-engine path repair can place it. */
     oldEngineLayout: boolean;
+    /** The archive is the MelonLoader package itself. */
+    melonLoaderPackage: boolean;
+    /** The archive is the BepInEx package itself. */
+    bepInExPackage: boolean;
 }
 
 /**
@@ -31,19 +46,84 @@ export interface ArchiveInfo {
  * @returns What the file list reveals about the mod.
  */
 export function inspectArchive(files: string[]): ArchiveInfo {
-    const contentFiles = files.filter(file => !isDirectory(file) && !isMarkerFile(file));
+    const content = contentFiles(files);
     return {
-        hasDll: contentFiles.some(file => hasExtension(file, DLL_EXTENSION)),
-        hasJs: contentFiles.some(file => hasExtension(file, VS_MOD_LOADER.modFile)),
+        hasContent: content.length > 0,
+        hasDll: content.some(file => hasExtension(file, DLL_EXTENSION)),
+        hasJs: content.some(file => hasExtension(file, VS_MOD_LOADER.modFile)),
         markers: {
-            melonLoader: hasBasename(files, MELON_LOADER.detectorFile),
-            bepInEx: hasBasename(files, BEPINEX.detectorFile),
-            keepStructure: hasBasename(files, MELON_LOADER.keepStructureFile),
+            melonLoader: hasBasename(files, MARKERS.melonLoader),
+            bepInEx: hasBasename(files, MARKERS.bepInEx),
+            keepStructure: hasBasename(files, MARKERS.keepStructure),
         },
-        mentionsMelonLoader: mentions(contentFiles, MELON_LOADER.name),
-        mentionsBepInEx: mentions(contentFiles, BEPINEX.name),
-        oldEngineLayout: contentFiles.some(file => OLD_ENGINE_ROOTS.has(file.split(/[\\/]/)[0])),
+        mentionsMelonLoader: mentions(content, MELON_LOADER.name),
+        mentionsBepInEx: mentions(content, BEPINEX.name),
+        oldEngineLayout: content.some(file => OLD_ENGINE_ROOTS.has(file.split(/[\\/]/)[0])),
+        melonLoaderPackage: findPackageRoot(files, MELON_LOADER.detectionFiles) !== undefined,
+        bepInExPackage: findPackageRoot(files, [...BEPINEX.detectionFiles, ...BEPINEX.legacyDetectionFiles]) !== undefined,
     };
+}
+
+/**
+ * Decides which mod loader a new-engine archive is meant for. A marker file
+ * wins over a path that mentions a loader, which wins over the loaders that
+ * are installed. MelonLoader is the default.
+ *
+ * @param archive - The inspected archive.
+ * @param loaders - The installed mod loaders.
+ * @returns The loader to install the archive for.
+ */
+export function chooseLoader(archive: ArchiveInfo, loaders: LoaderPresence): Loader {
+    if (archive.markers.bepInEx !== archive.markers.melonLoader) {
+        return archive.markers.bepInEx ? 'bepinex' : 'melonloader';
+    }
+    if (archive.mentionsBepInEx !== archive.mentionsMelonLoader) {
+        return archive.mentionsBepInEx ? 'bepinex' : 'melonloader';
+    }
+    return loaders.bepInEx && !loaders.melonLoader ? 'bepinex' : 'melonloader';
+}
+
+/**
+ * Checks whether an archive is a new-engine mod for a loader, as opposed to a
+ * loader package: it contains a `.dll` file and isn't MelonLoader or BepInEx itself.
+ *
+ * @param archive - The inspected archive.
+ * @returns True if the archive is a new-engine mod; otherwise false.
+ */
+export function isNewEngineMod(archive: ArchiveInfo): boolean {
+    return archive.hasDll && !archive.melonLoaderPackage && !archive.bepInExPackage;
+}
+
+/**
+ * Finds the folder a loader package was packed in, by locating one of the
+ * loader's detection files.
+ *
+ * @param files - Files contained in the archive.
+ * @param detectionFiles - Paths of the loader's detection files, relative to the game folder.
+ * @returns The prefix to strip from the archive's paths (empty or ending with a separator), or undefined if the archive isn't the package.
+ */
+export function findPackageRoot(files: string[], detectionFiles: string[]): string | undefined {
+    for (const file of contentFiles(files)) {
+        const normalizedFile = normalizePath(file);
+        for (const detectionFile of detectionFiles) {
+            const normalizedDetectionFile = normalizePath(detectionFile);
+            if (normalizedFile === normalizedDetectionFile || normalizedFile.endsWith(`/${normalizedDetectionFile}`)) {
+                return file.slice(0, file.length - detectionFile.length);
+            }
+        }
+    }
+    return undefined;
+}
+
+/**
+ * Lists the files that get installed: every entry except directories and
+ * marker files.
+ *
+ * @param files - Files contained in the archive.
+ * @returns The files to install.
+ */
+export function contentFiles(files: string[]): string[] {
+    return files.filter(file => !isDirectory(file) && !isMarkerFile(file));
 }
 
 /**
@@ -59,38 +139,14 @@ export function isMarkerFile(file: string): boolean {
 }
 
 /**
- * Detects whether an archive appears to target MelonLoader: it contains the
- * `_melonloader` marker file, or a path that mentions MelonLoader.
+ * Checks a file's extension, ignoring case.
  *
- * @param files - Files contained in the archive.
- * @returns True if the archive signals MelonLoader; otherwise false.
+ * @param file - Path of the file.
+ * @param extension - Lower-case extension including the dot.
+ * @returns True if the file has the extension; otherwise false.
  */
-export function filesSignalMelonLoader(files: string[]): boolean {
-    return filesSignalLoader(files, MELON_LOADER.detectorFile, MELON_LOADER.name);
-}
-
-/**
- * Detects whether an archive appears to target BepInEx: it contains the
- * `_bepinex` marker file, or a path that mentions BepInEx.
- *
- * @param files - Files contained in the archive.
- * @returns True if the archive signals BepInEx; otherwise false.
- */
-export function filesSignalBepInEx(files: string[]): boolean {
-    return filesSignalLoader(files, BEPINEX.detectorFile, BEPINEX.name);
-}
-
-/**
- * Checks an archive for a loader's marker file (case-insensitive basename) or
- * for the loader's name anywhere in a path (case-insensitive).
- *
- * @param files - Files contained in the archive.
- * @param markerFile - Lower-case name of the loader's marker file.
- * @param loaderName - Name of the loader.
- * @returns True if the archive signals the loader; otherwise false.
- */
-function filesSignalLoader(files: string[], markerFile: string, loaderName: string): boolean {
-    return hasBasename(files, markerFile) || mentions(files, loaderName);
+export function hasExtension(file: string, extension: string): boolean {
+    return path.extname(file).toLowerCase() === extension;
 }
 
 /**
@@ -101,17 +157,6 @@ function filesSignalLoader(files: string[], markerFile: string, loaderName: stri
  */
 function isDirectory(file: string): boolean {
     return file.endsWith('/') || file.endsWith('\\');
-}
-
-/**
- * Checks a file's extension, ignoring case.
- *
- * @param file - Path of the file.
- * @param extension - Lower-case extension including the dot.
- * @returns True if the file has the extension; otherwise false.
- */
-function hasExtension(file: string, extension: string): boolean {
-    return path.extname(file).toLowerCase() === extension;
 }
 
 /**
@@ -135,4 +180,14 @@ function hasBasename(files: string[], name: string): boolean {
 function mentions(files: string[], name: string): boolean {
     const lowerCaseName = name.toLowerCase();
     return files.some(file => file.toLowerCase().includes(lowerCaseName));
+}
+
+/**
+ * Normalizes a path for comparisons: forward slashes, lower case.
+ *
+ * @param file - Path to normalize.
+ * @returns The normalized path, with the same length as the input.
+ */
+function normalizePath(file: string): string {
+    return file.replace(/\\/g, '/').toLowerCase();
 }
