@@ -18,9 +18,7 @@ Note that New Engine mods need MelonLoader (recommended) or the IL2CPP build of 
 
 Mods that only contain the changed file, without its folders, still won't work.
 
-## Currently Supported Mods
-
-### Old Engine Supported Mods
+## Currently Supported Mods for Old Engine
 
 - [Simple Rebalance mod](https://www.nexusmods.com/vampiresurvivors/mods/1) (NO VS Mod Loader)
 - [NG plus](https://www.nexusmods.com/vampiresurvivors/mods/3) (NO VS Mod Loader)
@@ -54,16 +52,9 @@ Mods that only contain the changed file, without its folders, still won't work.
 - [VS Mod Loader](https://www.nexusmods.com/vampiresurvivors/mods/64)
 - [Movement Speed Cap](https://www.nexusmods.com/vampiresurvivors/mods/65)
 
-### New Engine Supported Mods
-
-- [VSTweaks (New Engine)](https://www.nexusmods.com/vampiresurvivors/mods/87)
-- [Ultra-Wide Fix (NewEngine)](https://www.nexusmods.com/vampiresurvivors/mods/79)
-
 #### For the full List of supported and not supported Mods see
 
 [Full List for Old Engine](https://github.com/Der-Floh/Vampire-Survivors-Support-for-Vortex/blob/main/support-lists/support-list-old-engine.md)
-
-[Full List for New Engine](https://github.com/Der-Floh/Vampire-Survivors-Support-for-Vortex/blob/main/support-lists/support-list-new-engine.md)
 
 ## How to install
 
