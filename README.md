@@ -103,8 +103,6 @@ At the time of writing, the releases on BepInEx's GitHub page are too old for th
 2. In Vortex, remove the old BepInEx mod, install the new zip like any other mod and deploy.
 3. Start the game. The first start takes a while, because BepInEx generates the files it needs for the game.
 
-Build 755 was the first one that supports the game's Unity version; the first line of `LogOutput.log` shows which build you have (for example `be.788`). If BepInEx stops working after a game update, try the newest bleeding-edge build first.
-
 ### Mods for the other engine
 
 If you install a mod that was made for the other engine (for example an Old Engine mod while the game runs the New Engine), the extension shows a warning, because the mod won't load.
