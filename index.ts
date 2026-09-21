@@ -7,6 +7,7 @@ type IExtensionContext = vortex.types.IExtensionContext;
 type IExtensionApi = vortex.types.IExtensionApi;
 type IDiscoveryResult = vortex.types.IDiscoveryResult;
 type TestSupported = vortex.types.TestSupported;
+type ISupportedResult = vortex.types.ISupportedResult;
 type InstallFunc = vortex.types.InstallFunc;
 type IInstruction = vortex.types.IInstruction;
 
@@ -64,8 +65,6 @@ const VS_MOD_LOADER = {
     ]
 }
 
-let DISCOVERY_GLOBAL: IDiscoveryResult | undefined;
-
 
 // -------------------------------------
 //#region Register Game
@@ -99,12 +98,13 @@ function main(context: IExtensionContext): boolean {
     });
 
     // Register mod installer
-    context.registerInstaller('vs-newengine-melonloader-mod', 30, testSupportedContentNewEngineMelonLoader, installContentNewEngineMelonLoader);
-    context.registerInstaller('vs-newengine-bepinex-mod', 20, testSupportedContentNewEngineBepInEx, installContentNewEngineBepInEx);
+    context.registerInstaller('vs-newengine-melonloader-mod', 30, (files, gameId) => testSupportedContentNewEngineMelonLoader(files, gameId, context.api), installContentNewEngineMelonLoader);
+    context.registerInstaller('vs-newengine-bepinex-mod', 20, (files, gameId) => testSupportedContentNewEngineBepInEx(files, gameId, context.api), installContentNewEngineBepInEx);
     context.registerInstaller('vs-oldengine-mod', 10, testSupportedContentOldEngine, installContentOldEngine);
 
     context.once(() => {
-        context.api.events?.on('did-install-mod', (gameId, archiveId, modId) => onDidInstallMod(gameId, archiveId, modId, context));
+        context.api.events.on('did-install-mod', (gameId: string, _archiveId: string, modId: string) =>
+            onDidInstallMod(context.api, gameId, modId).catch(err => log('error', `[did-install-mod] ${err}`)));
     });
 
     return true;
@@ -113,27 +113,36 @@ function main(context: IExtensionContext): boolean {
 /**
  * Locates the Vampire Survivors installation directory.
  *
- * Uses Vortex's `GameStoreHelper` to find the game by its store app ID.
+ * Uses Vortex's `GameStoreHelper` to find the game by its Steam app ID.
  *
  * @returns A promise that resolves to the game installation path.
  */
 async function findGame() {
-    const game = await util.GameStoreHelper.findByAppId([GAME.steamAppId]);
+    const game = await util.GameStoreHelper.findByAppId(GAME.steamAppId, 'steam');
     return game.gamePath;
+}
+
+/**
+ * Reads the current Vampire Survivors discovery result from the Vortex state.
+ *
+ * @param api - Vortex extension API.
+ * @returns The discovery result, or undefined if the game hasn't been discovered.
+ */
+function getDiscovery(api: IExtensionApi): IDiscoveryResult | undefined {
+    return selectors.discoveryByGame(api.getState(), GAME.id);
 }
 
 /**
  * Prepares the game installation for modding.
  *
- * Stores the discovery result globally and then chooses between the
- * old-engine and new-engine setup paths, based on the engine detection.
+ * Chooses between the old-engine and new-engine setup paths, based on the
+ * engine detection.
  *
  * @param discovery - The game discovery result from Vortex.
  * @param api - Vortex extension API.
  * @returns A promise that resolves once preparation is complete.
  */
 async function prepareForModding(discovery: IDiscoveryResult, api: IExtensionApi) {
-    DISCOVERY_GLOBAL = discovery;
     const isNewEngine = await checkEngineVersionAsync(discovery);
     if (isNewEngine) {
         return prepareForModdingNewEngine(discovery, api);
@@ -318,10 +327,10 @@ const testSupportedContentOldEngine: TestSupported = (files, gameId) => {
  *
  * @param files - List of files contained in the archive.
  * @param gameId - ID of the game the archive is being installed for.
+ * @param api - Vortex extension API, used to read the current discovery.
  * @returns A promise resolving to the support state and required files.
- * @function
  */
-const testSupportedContentNewEngineMelonLoader: TestSupported = (files, gameId) => {
+function testSupportedContentNewEngineMelonLoader(files: string[], gameId: string, api: IExtensionApi): Bluebird<ISupportedResult> {
     if (gameId !== GAME.id) {
         return Bluebird.resolve({ supported: false, requiredFiles: [] });
     }
@@ -335,13 +344,14 @@ const testSupportedContentNewEngineMelonLoader: TestSupported = (files, gameId) 
         return Bluebird.resolve({ supported: filesIncludeModFile, requiredFiles: [] });
     }
 
-    const melonLoaderInstalled = DISCOVERY_GLOBAL ? isMelonLoaderInstalled(DISCOVERY_GLOBAL) : false;
+    const discovery = getDiscovery(api);
+    const melonLoaderInstalled = discovery?.path ? isMelonLoaderInstalled(discovery) : false;
     if (melonLoaderInstalled && !filesSignalBepInEx(files)) {
         return Bluebird.resolve({ supported: filesIncludeModFile, requiredFiles: [] });
     }
 
     return Bluebird.resolve({ supported: false, requiredFiles: [] });
-};
+}
 
 /**
  * Test function for new-engine BepInEx archives.
@@ -355,10 +365,10 @@ const testSupportedContentNewEngineMelonLoader: TestSupported = (files, gameId) 
  *
  * @param files - List of files contained in the archive.
  * @param gameId - ID of the game the archive is being installed for.
+ * @param api - Vortex extension API, used to read the current discovery.
  * @returns A promise resolving to the support state and required files.
- * @function
  */
-const testSupportedContentNewEngineBepInEx: TestSupported = (files, gameId) => {
+function testSupportedContentNewEngineBepInEx(files: string[], gameId: string, api: IExtensionApi): Bluebird<ISupportedResult> {
     if (gameId !== GAME.id) {
         return Bluebird.resolve({ supported: false, requiredFiles: [] });
     }
@@ -369,13 +379,14 @@ const testSupportedContentNewEngineBepInEx: TestSupported = (files, gameId) => {
         return Bluebird.resolve({ supported: filesIncludeModFile, requiredFiles: [] });
     }
 
-    const bepinexInstalled = DISCOVERY_GLOBAL ? isBepInExInstalled(DISCOVERY_GLOBAL) : false;
+    const discovery = getDiscovery(api);
+    const bepinexInstalled = discovery?.path ? isBepInExInstalled(discovery) : false;
     if (bepinexInstalled && !filesSignalMelonLoader(files)) {
         return Bluebird.resolve({ supported: filesIncludeModFile, requiredFiles: [] });
     }
 
     return Bluebird.resolve({ supported: false, requiredFiles: [] });
-};
+}
 
 /**
  * Detects whether a list of files appears to target MelonLoader.
@@ -582,21 +593,25 @@ const installContentNewEngineBepInEx: InstallFunc = (files) => {
  * On the old engine, attempts to locate the main VS Mod Loader mod file and
  * apply a small patch to its `getMods` implementation so that Vortex-managed
  * folders do not cause issues. On the new engine no changes are made.
+ * Vortex emits the event for every game, so mods of other games are ignored.
  *
+ * @param api - Vortex extension API.
  * @param gameId - ID of the game the mod was installed for.
- * @param archiveId - ID of the archive (currently unused).
  * @param modId - ID of the installed mod.
- * @param context - Vortex extension context.
  */
-async function onDidInstallMod(gameId: string, archiveId: string | undefined, modId: string, context: IExtensionContext) {
-    const state = context.api.getState();
-    const installPath = selectors.installPathForGame(state, gameId);
-    const mod = state.persistent.mods?.[gameId]?.[modId];
-    if (!DISCOVERY_GLOBAL || !installPath || !mod?.installationPath) {
+async function onDidInstallMod(api: IExtensionApi, gameId: string, modId: string) {
+    if (gameId !== GAME.id) {
         return;
     }
 
-    const isNewEngine = await checkEngineVersionAsync(DISCOVERY_GLOBAL);
+    const state = api.getState();
+    const installPath = selectors.installPathForGame(state, gameId);
+    const mod = state.persistent.mods?.[gameId]?.[modId];
+    if (!installPath || !mod?.installationPath) {
+        return;
+    }
+
+    const isNewEngine = await checkEngineVersionAsync(getDiscovery(api));
     if (isNewEngine) {
         return;
     }
@@ -607,7 +622,7 @@ async function onDidInstallMod(gameId: string, archiveId: string | undefined, mo
         const success = fixGetMods(mainModPath);
         if (success) {
             log('info', `[old-e] fixed old mod:"${modId}"`);
-            context.api.sendNotification?.({
+            api.sendNotification?.({
                 id: `fix_success_${modId}`,
                 type: 'info',
                 title: 'Fixed Mod',
@@ -735,11 +750,11 @@ function fixGetMods(filePath: string) {
  * (`UnityCrashHandler64.exe`, `UnityCrashHandler32.exe`, `UnityCrashHandler.exe`)
  * to determine whether the new Unity-based engine is present.
  *
- * @param discovery - The game discovery result from Vortex.
- * @returns A promise resolving to true for the new engine, false for the old engine.
+ * @param discovery - The game discovery result from Vortex, if the game has been discovered.
+ * @returns A promise resolving to true for the new engine, false for the old engine or an undiscovered game.
  */
-async function checkEngineVersionAsync(discovery: IDiscoveryResult) {
-    if (!discovery.path) {
+async function checkEngineVersionAsync(discovery?: IDiscoveryResult) {
+    if (!discovery?.path) {
         return false;
     }
 
@@ -866,6 +881,7 @@ export {
     // Register / setup
     main,
     findGame,
+    getDiscovery,
     prepareForModding,
     prepareForModdingOldEngine,
     checkForVSModLoader,
