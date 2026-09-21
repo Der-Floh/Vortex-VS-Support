@@ -1,4 +1,4 @@
-[![Vampire Survivors Support Code Documentation](https://img.shields.io/badge/Vampire_Survivors_Support-Code_Documentation-green.svg)](https://der-floh.github.io/Vampire-Survivors-Support-for-Vortex/)
+[![Vampire Survivors Support Code Documentation](https://img.shields.io/badge/Vampire_Survivors_Support-Code_Documentation-green.svg)](https://der-floh.github.io/Vortex-VS-Support/)
 
 # Vampire Survivors Support for [Vortex](https://www.nexusmods.com/about/vortex/)
 
@@ -54,7 +54,7 @@ Mods that only contain the changed file, without its folders, still won't work.
 
 #### For the full List of supported and not supported Mods see
 
-[Full List for Old Engine](https://github.com/Der-Floh/Vampire-Survivors-Support-for-Vortex/blob/main/support-lists/support-list-old-engine.md)
+[Full List for Old Engine](https://github.com/Der-Floh/Vortex-VS-Support/blob/main/support-lists/support-list-old-engine.md)
 
 ## How to install
 
