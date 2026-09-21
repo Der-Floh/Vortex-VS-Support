@@ -1,7 +1,7 @@
 import * as path from 'path';
 import Bluebird from 'bluebird';
 import { types } from 'vortex-api';
-import { filesSignalBepInEx, filesSignalMelonLoader } from './archive';
+import { filesSignalBepInEx, filesSignalMelonLoader, isMarkerFile } from './archive';
 import { BEPINEX, GAME } from './constants';
 import { getDiscovery, isBepInExInstalled } from './detection';
 
@@ -42,17 +42,14 @@ export function testSupportedContentNewEngineBepInEx(files: string[], gameId: st
  *
  * When a special `_keepstructure` marker is present, the original archive
  * folder structure is preserved. Otherwise, DLLs are placed into BepInEx's
- * plugins directory.
+ * plugins directory. Marker files are never copied.
  *
  * @param files - Files contained in the archive.
  * @returns A promise resolving to installer instructions.
  */
 export const installContentNewEngineBepInEx: types.InstallFunc = (files) => {
     const keepStructure = files.some(file => path.basename(file).toLowerCase() === BEPINEX.keepStructureFile);
-    const filtered = files.filter(file =>
-        !file.endsWith(path.sep) &&
-        path.basename(file).toLowerCase() !== BEPINEX.keepStructureFile,
-    );
+    const filtered = files.filter(file => !file.endsWith(path.sep) && !isMarkerFile(file));
 
     if (keepStructure) {
         const instructions: types.IInstruction[] = filtered.map(file => ({ type: 'copy', source: file, destination: file }));

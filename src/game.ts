@@ -52,7 +52,8 @@ async function prepareForModdingOldEngine(discovery: types.IDiscoveryResult, api
  * Verifies that VS Mod Loader is installed for an old-engine installation.
  *
  * Checks for the presence of all required VS Mod Loader files. If any are
- * missing, a warning notification is displayed with a link to download it.
+ * missing, a warning notification recommends installing it. It isn't required:
+ * mods that replace game files directly work without it.
  *
  * @param discovery - The game discovery result from Vortex.
  * @param api - Vortex extension API.
@@ -64,7 +65,7 @@ async function checkForVSModLoader(discovery: types.IDiscoveryResult, api: types
                 id: NOTIFICATION_IDS.vsModLoaderMissing,
                 type: 'warning',
                 title: `${VS_MOD_LOADER.name} not installed`,
-                message: `${VS_MOD_LOADER.name} is required to mod Vampire Survivors (Old Engine).`,
+                message: `${VS_MOD_LOADER.name} is recommended for modding Vampire Survivors (Old Engine). Without it, mods that replace the same game files overwrite each other.`,
                 actions: [
                     apiMakeOpenUrlFunction('Get', VS_MOD_LOADER.downloadPage),
                 ],

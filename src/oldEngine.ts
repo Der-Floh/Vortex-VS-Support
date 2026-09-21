@@ -1,23 +1,41 @@
 import * as path from 'path';
 import Bluebird from 'bluebird';
 import { fs, log, types } from 'vortex-api';
+import { ArchiveInfo, inspectArchive, isMarkerFile } from './archive';
 import { GAME, VS_MOD_LOADER } from './constants';
 
 /**
- * Test function for old-engine VS Mod Loader archives.
+ * Test function for old-engine archives: VS Mod Loader mods and mods that
+ * replace game files directly.
  *
- * Marks a mod as supported if:
- * - The target game matches, and
- * - At least one `.js` file (VS mod file) is present.
+ * Marks a mod as supported if the target game matches and the archive is an
+ * old-engine mod (see {@link isOldEngineArchive}).
  *
  * @param files - List of files contained in the archive.
  * @param gameId - ID of the game the archive is being installed for.
  * @returns A promise resolving to the support state and required files.
  */
 export const testSupportedContentOldEngine: types.TestSupported = (files, gameId) => {
-    const supported = gameId === GAME.id && files.some(file => path.extname(file).toLowerCase() === VS_MOD_LOADER.modFile);
+    const supported = gameId === GAME.id && isOldEngineArchive(inspectArchive(files));
     return Bluebird.resolve({ supported, requiredFiles: [] });
 };
+
+/**
+ * Decides whether an archive is an old-engine mod this installer can place.
+ *
+ * It must contain a `.js` file or start inside the old engine's folder layout
+ * (e.g. `assets/`, `renderer/`, `mods/`), and nothing in it may point at the
+ * new engine: no `.dll` file, no loader marker, no path mentioning a loader.
+ *
+ * @param archive - The inspected archive.
+ * @returns True if the archive is an old-engine mod; otherwise false.
+ */
+function isOldEngineArchive(archive: ArchiveInfo): boolean {
+    const targetsNewEngine = archive.hasDll
+        || archive.markers.melonLoader || archive.markers.bepInEx
+        || archive.mentionsMelonLoader || archive.mentionsBepInEx;
+    return !targetsNewEngine && (archive.hasJs || archive.oldEngineLayout);
+}
 
 /**
  * Installer implementation for old-engine VS Mod Loader mods.
@@ -86,7 +104,7 @@ function prepareFilesOldEngine(files: string[]): { source: string, destination: 
 
     const preparedFiles = files
         .map(file => file.replaceAll('\\', '/'))
-        .filter(file => !file.endsWith('/'))
+        .filter(file => !file.endsWith('/') && !isMarkerFile(file))
         .map(file => ({ source: file, destination: `${modPathPre}${file}` }));
 
     const logString = preparedFiles.map(file => `(source:${file.source}|destination:${file.destination})`).join('');

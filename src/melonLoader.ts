@@ -1,7 +1,7 @@
 import * as path from 'path';
 import Bluebird from 'bluebird';
 import { types } from 'vortex-api';
-import { filesSignalBepInEx, filesSignalMelonLoader } from './archive';
+import { filesSignalBepInEx, filesSignalMelonLoader, isMarkerFile } from './archive';
 import { GAME, MELON_LOADER } from './constants';
 import { getDiscovery, isMelonLoaderInstalled } from './detection';
 
@@ -42,17 +42,15 @@ export function testSupportedContentNewEngineMelonLoader(files: string[], gameId
  *
  * When a special `_keepstructure` marker is present, the original archive
  * folder structure is preserved. Otherwise, DLLs are placed into MelonLoader's
- * mods directory and CFG files into its UserData directory.
+ * mods directory and CFG files into its UserData directory. Marker files are
+ * never copied.
  *
  * @param files - Files contained in the archive.
  * @returns A promise resolving to installer instructions.
  */
 export const installContentNewEngineMelonLoader: types.InstallFunc = (files) => {
     const keepStructure = files.some(file => path.basename(file).toLowerCase() === MELON_LOADER.keepStructureFile);
-    const filtered = files.filter(file =>
-        !file.endsWith(path.sep) &&
-        path.basename(file).toLowerCase() !== MELON_LOADER.keepStructureFile,
-    );
+    const filtered = files.filter(file => !file.endsWith(path.sep) && !isMarkerFile(file));
 
     if (keepStructure) {
         const instructions: types.IInstruction[] = filtered.map(file => ({ type: 'copy', source: file, destination: file }));

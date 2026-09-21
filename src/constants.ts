@@ -1,5 +1,8 @@
 import * as path from 'path';
 
+/** Extension of new-engine mod files, for both MelonLoader and BepInEx. */
+export const DLL_EXTENSION = '.dll';
+
 /** Vampire Survivors as registered with Vortex. */
 export const GAME = {
     id: 'vampiresurvivors',
@@ -15,7 +18,7 @@ export const GAME = {
 /** MelonLoader, a mod loader for the new (Unity) engine. */
 export const MELON_LOADER = {
     name: 'MelonLoader',
-    modFile: '.dll',
+    modFile: DLL_EXTENSION,
     userDataFile: '.cfg',
     detectorFile: '_melonloader',
     keepStructureFile: '_keepstructure',
@@ -30,7 +33,7 @@ export const MELON_LOADER = {
 /** BepInEx, a mod loader for the new (Unity) engine. */
 export const BEPINEX = {
     name: 'BepInEx',
-    modFile: '.dll',
+    modFile: DLL_EXTENSION,
     modDir: path.join('BepInEx', 'plugins'),
     detectorFile: '_bepinex',
     keepStructureFile: '_keepstructure',
@@ -69,4 +72,6 @@ export const NOTIFICATION_IDS = {
     bothModLoaders: 'ml-and-bix-both',
     directoryNotWritable: 'vs-support-writable-warning',
     fixedModPrefix: 'fix_success_',
+    oldModOnNewEngine: 'vs-engine-mismatch-old-on-new',
+    newModOnOldEngine: 'vs-engine-mismatch-new-on-old',
 };
