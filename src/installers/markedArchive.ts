@@ -1,9 +1,10 @@
 import Bluebird from 'bluebird';
 import { types } from 'vortex-api';
-import { ArchiveInfo, chooseLoader, contentFiles, inspectArchive } from './archive';
+import { ArchiveInfo, contentFiles, inspectArchive } from '../archive/inspection';
+import { chooseLoader } from '../archive/routing';
+import { GAME, MOD_TYPES } from '../common/constants';
+import { detectLoaders } from '../detection/loaders';
 import { bepInExInstructions } from './bepinex';
-import { GAME, MOD_TYPES } from './constants';
-import { detectLoaders } from './detection';
 import { copyInstruction, setModTypeInstruction } from './instructions';
 import { melonLoaderInstructions } from './melonLoader';
 

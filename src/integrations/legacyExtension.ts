@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { types } from 'vortex-api';
-import { LEGACY_EXTENSION_NAME, NOTIFICATION_IDS } from './constants';
+import { LEGACY_EXTENSION_NAME, NOTIFICATION_IDS } from '../common/constants';
 
 /**
  * Warns if the extension's 2.2.x version is still installed next to this one.

@@ -1,14 +1,16 @@
 import Bluebird from 'bluebird';
 import { log, types } from 'vortex-api';
-import { dismissBepInExExtensionNotice, installContentNewEngineBepInEx, registerBepInExSupport, testSupportedContentNewEngineBepInEx } from './bepinex';
-import { GAME, GAME_ROOT_MOD_TYPE_PRIORITY, INSTALLERS, MOD_TYPES } from './constants';
-import { getDiscovery } from './detection';
-import { findGame, prepareForModding } from './game';
-import { warnAboutLegacyExtension } from './legacyExtension';
-import { installContentNewEngineMelonLoader, installMelonLoaderPackage, testSupportedContentNewEngineMelonLoader, testSupportedMelonLoaderPackage } from './melonLoader';
-import { installMarkedArchive, testSupportedMarkedArchive } from './newEngine';
-import { installContentOldEngine, testSupportedContentOldEngine } from './oldEngine';
-import { onDidInstallMod } from './postInstall';
+import { GAME, GAME_ROOT_MOD_TYPE_PRIORITY, INSTALLERS, MOD_TYPES } from './common/constants';
+import { findGame, getDiscovery } from './detection/discovery';
+import { installContentNewEngineBepInEx, testSupportedContentNewEngineBepInEx } from './installers/bepinex';
+import { installMarkedArchive, testSupportedMarkedArchive } from './installers/markedArchive';
+import { installContentNewEngineMelonLoader, testSupportedContentNewEngineMelonLoader } from './installers/melonLoader';
+import { installMelonLoaderPackage, testSupportedMelonLoaderPackage } from './installers/melonLoaderPackage';
+import { installContentOldEngine, testSupportedContentOldEngine } from './installers/oldEngine';
+import { dismissBepInExExtensionNotice, registerBepInExSupport } from './integrations/bepinexExtension';
+import { warnAboutLegacyExtension } from './integrations/legacyExtension';
+import { onDidInstallMod } from './postInstall/onDidInstallMod';
+import { prepareForModding } from './setup/prepareForModding';
 
 /**
  * Vortex extension entry point for Vampire Survivors.

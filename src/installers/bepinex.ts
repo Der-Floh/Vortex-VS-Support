@@ -1,9 +1,11 @@
 import * as path from 'path';
 import Bluebird from 'bluebird';
-import { log, types, util } from 'vortex-api';
-import { chooseLoader, contentFiles, hasExtension, inspectArchive, isNewEngineMod } from './archive';
-import { BEPINEX, GAME, MOD_TYPES, NOTIFICATION_IDS } from './constants';
-import { detectLoaders } from './detection';
+import { types } from 'vortex-api';
+import { contentFiles, hasExtension, inspectArchive, isNewEngineMod } from '../archive/inspection';
+import { chooseLoader } from '../archive/routing';
+import { BEPINEX, GAME, MOD_TYPES } from '../common/constants';
+import { detectLoaders } from '../detection/loaders';
+import { isBepInExPluginModTypeAvailable } from '../integrations/bepinexExtension';
 import { copyInstruction, setModTypeInstruction } from './instructions';
 
 /**
@@ -54,57 +56,4 @@ export function bepInExInstructions(files: string[]): types.IInstruction[] {
         ...dllFiles.map(file => copyInstruction(file, path.join(BEPINEX.modDir, path.basename(file)))),
         setModTypeInstruction(MOD_TYPES.gameRoot),
     ];
-}
-
-/**
- * Registers Vampire Survivors with Vortex's BepInEx extension, which then
- * provides the BepInEx mod types and installs the BepInEx package itself.
- * BepInEx isn't downloaded automatically, because MelonLoader is the
- * recommended loader.
- *
- * @param api - Vortex extension API.
- */
-export function registerBepInExSupport(api: types.IExtensionApi): void {
-    if (api.ext?.bepinexAddGame === undefined) {
-        return;
-    }
-    try {
-        api.ext.bepinexAddGame({
-            gameId: GAME.id,
-            autoDownloadBepInEx: false,
-            // Without this, the BepInEx extension's update check compares the installed
-            // BepInEx 6 with its bundled BepInEx 5 download and disables the installed one.
-            forceGithubDownload: true,
-            architecture: 'x64',
-            unityBuild: 'unityil2cpp',
-        });
-    } catch (err) {
-        log('error', `[bepinex] registering with the BepInEx extension failed: ${err}`);
-    }
-}
-
-/**
- * Dismisses the notice Vortex's BepInEx extension shows on every activation.
- * Its advice points to the BepInEx 5 build, which can't load mods for the new
- * engine; this extension's own setup notifications explain what's needed.
- *
- * @param api - Vortex extension API.
- */
-export function dismissBepInExExtensionNotice(api: types.IExtensionApi): void {
-    api.onStateChange?.(['session', 'notifications', 'notifications'], (_previous, current: types.INotification[]) => {
-        if (current?.some(notification => notification.id === NOTIFICATION_IDS.bepInExExtensionNotice)) {
-            api.dismissNotification?.(NOTIFICATION_IDS.bepInExExtensionNotice);
-        }
-    });
-}
-
-/**
- * Checks whether the `bepinex-plugin` mod type is available for Vampire
- * Survivors, i.e. Vortex's BepInEx extension is enabled and the game is
- * registered with it.
- *
- * @returns True if the mod type is available; otherwise false.
- */
-function isBepInExPluginModTypeAvailable(): boolean {
-    return util.getGame(GAME.id)?.modTypes?.some(modType => modType.typeId === MOD_TYPES.bepInExPlugin) ?? false;
 }
