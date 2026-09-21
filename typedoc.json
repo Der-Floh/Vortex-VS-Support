@@ -21,5 +21,6 @@
     "excludePrivate": true,
     "excludeProtected": false,
     "excludeInternal": true,
+    "excludeExternals": true,
     "categorizeByGroup": true,
 }

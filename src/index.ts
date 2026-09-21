@@ -4,6 +4,7 @@ import { dismissBepInExExtensionNotice, installContentNewEngineBepInEx, register
 import { GAME, GAME_ROOT_MOD_TYPE_PRIORITY, INSTALLERS, MOD_TYPES } from './constants';
 import { getDiscovery } from './detection';
 import { findGame, prepareForModding } from './game';
+import { warnAboutLegacyExtension } from './legacyExtension';
 import { installContentNewEngineMelonLoader, installMelonLoaderPackage, testSupportedContentNewEngineMelonLoader, testSupportedMelonLoaderPackage } from './melonLoader';
 import { installMarkedArchive, testSupportedMarkedArchive } from './newEngine';
 import { installContentOldEngine, testSupportedContentOldEngine } from './oldEngine';
@@ -59,6 +60,7 @@ function main(context: types.IExtensionContext): boolean {
     context.once(() => {
         registerBepInExSupport(context.api);
         dismissBepInExExtensionNotice(context.api);
+        warnAboutLegacyExtension(context.api);
         context.api.events.on('did-install-mod', (gameId: string, _archiveId: string, modId: string) =>
             onDidInstallMod(context.api, gameId, modId).catch(err => log('error', `[did-install-mod] ${err}`)));
     });

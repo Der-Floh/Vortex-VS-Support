@@ -9,7 +9,8 @@ import { GAME, VS_MOD_LOADER } from './constants';
  * replace game files directly.
  *
  * Marks a mod as supported if the target game matches and the archive is an
- * old-engine mod (see {@link isOldEngineArchive}).
+ * old-engine mod: it contains a `.js` file or starts inside the old engine's
+ * folder layout, and nothing in it points at the new engine.
  *
  * @param files - List of files contained in the archive.
  * @param gameId - ID of the game the archive is being installed for.

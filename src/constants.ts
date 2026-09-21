@@ -102,6 +102,9 @@ export const INSTALLERS = {
     melonLoader: { id: 'vs-newengine-melonloader-mod', priority: 30 },
 };
 
+/** `info.json` name of the extension's 2.2.x version, which had no id. */
+export const LEGACY_EXTENSION_NAME = 'Vampire Survivors Support';
+
 /** Ids of the notifications this extension sends or dismisses. */
 export const NOTIFICATION_IDS = {
     vsModLoaderMissing: 'vs-modloader-missing',
@@ -112,6 +115,7 @@ export const NOTIFICATION_IDS = {
     fixedModPrefix: 'fix_success_',
     oldModOnNewEngine: 'vs-engine-mismatch-old-on-new',
     newModOnOldEngine: 'vs-engine-mismatch-new-on-old',
+    legacyExtension: 'vs-legacy-extension-installed',
     /** Sent by Vortex's BepInEx extension on every activation of a game registered with it. */
     bepInExExtensionNotice: `bepis_injector${GAME.id}`,
 };

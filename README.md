@@ -1,4 +1,4 @@
-[![Vampire Survivors Support Code Documentation](https://img.shields.io/badge/Vampire_Survivors_Support-Code_Documentation-green.svg)](https://der-floh.github.io/Vampire-Survivors-Support-for-Vortex/global.html)
+[![Vampire Survivors Support Code Documentation](https://img.shields.io/badge/Vampire_Survivors_Support-Code_Documentation-green.svg)](https://der-floh.github.io/Vampire-Survivors-Support-for-Vortex/)
 
 # Vampire Survivors Support for [Vortex](https://www.nexusmods.com/about/vortex/)
 
@@ -9,13 +9,14 @@ This extension adds support for Vampire Survivors to [Vortex Mod Manager](https:
 ### At this time following mod types are supported
 
 - Mods that are designed for the [VS ModLoader](https://www.nexusmods.com/vampiresurvivors/mods/64) by Kekos and use the right file structure (e.g resources/app/.webpack/.../img.jpg)
-- Other Mods that use the right file structure (e.g resources/app/.webpack/.../img.jpg)
-- Mods for the New Engine that use the right file structure (e.g Mods/mod.dll)
+- Other Old Engine mods that use the right file structure (e.g resources/app/.webpack/.../img.jpg). Archives that start further down, for example with `assets/` or `renderer/`, are placed automatically.
+- New Engine mods for [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (e.g Mods/mod.dll)
+- New Engine mods for the IL2CPP build of [BepInEx 6](https://github.com/BepInEx/BepInEx/releases) (e.g BepInEx/plugins/mod.dll)
 
-Note that mods that change the same file and **DON'T** use the [VS ModLoader](https://www.nexusmods.com/vampiresurvivors/mods/64) will **NOT WORK**.
-Note that mods for the New Engine have to be made for [MelonLoader](https://github.com/LavaGang/MelonLoader/releases)
+Note that Old Engine mods that change the same file and **DON'T** use the [VS ModLoader](https://www.nexusmods.com/vampiresurvivors/mods/64) overwrite each other, so the VS ModLoader is recommended.
+Note that New Engine mods need MelonLoader (recommended) or the IL2CPP build of BepInEx 6. BepInEx 5 can't load mods for the New Engine.
 
-Mods that only contain the file to change also won't work.
+Mods that only contain the changed file, without its folders, still won't work.
 
 ## Currently Supported Mods
 
@@ -72,6 +73,10 @@ You can also manually install it by downloading the main file and dragging it in
 
 Afterwards, restart Vortex and you can begin installing supported Vampire Survivors mods with Vortex.
 
+### Upgrading from 2.2.x
+
+Version 2.3.0 is installed into a new folder. If you update through Vortex, the old version is removed automatically. If you install 2.3.0 manually, remove the old "Vampire Survivors Support" extension in the Extensions tab and restart Vortex; the extension warns you while both are installed.
+
 ## Known Issues
 
 ### Old Engine Black Screen
@@ -83,11 +88,19 @@ If you encounter a black screen this is most likely because of 2 reasons.
 
 #### UPDATE: This now gets fixed automatically by the Extension uppon installing the Mod
 
-`.filter((dir) => dir.isFile() && dir.name !== "__folder_managed_by_vortex")`
+`.filter((dir) => dir.name !== "__folder_managed_by_vortex")`
 
 ![Kekos-Mod-Error-Previous](https://staticdelivery.nexusmods.com/mods/2295/images/593/593-1716496297-2102395392.png)
 ![Kekos-Mod-Error-After](https://staticdelivery.nexusmods.com/mods/2295/images/593/593-1716496305-305732697.png)
 For the [Multiperpose QoL Mod](https://www.nexusmods.com/vampiresurvivors/mods/50) the file would be `MultipurposeQolMod.js` and for the [Castlevania Survivors](https://www.nexusmods.com/vampiresurvivors/mods/61) Mod it would be `Castlevania.js`
+
+### Empty BepInEx folders (New Engine)
+
+Vortex's built-in BepInEx support creates empty `BepInEx`, `BepInEx/plugins` and `BepInEx/patchers` folders in the game folder whenever Vampire Survivors is opened in Vortex, even if you only use MelonLoader. They're harmless.
+
+### Mods for the other engine
+
+If you install a mod that was made for the other engine (for example an Old Engine mod while the game runs the New Engine), the extension shows a warning, because the mod won't load.
 
 ## How to make my Mod compatible with this Extension
 
@@ -139,12 +152,20 @@ If you don't use the VS ModLoader your file structure can vary but should always
             |--> UI.png
 ```
 
+If your archive starts further down, the extension adds the missing folders: an archive that starts with `mods`, `assets`, `renderer`, `.webpack` or `app`, or only contains `main.bundle.js`, is placed correctly.
+
 Note that the [VS ModLoader](https://www.nexusmods.com/vampiresurvivors/mods/64) only works if another mod is actually active / installed
 
 ### New Engine
 
-For the New Engine
-To make your mod compatible your mod needs to be created for the MelonLoader. If that is the case you just need the right file structure for your mod. All Modfiles go into the Mods folder of MelonLoader. If you access other files within your Mod note that this Extension just copies everything as it is. So a file in `Mods/mod.dll` will be copied to `Mods/mod.dll`. Most of the time you want your files to be in the Mods folder if that is the case your file structure would look like this:
+Mods for the New Engine are `.dll` files for [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) or for the IL2CPP build of [BepInEx 6](https://github.com/BepInEx/BepInEx/releases).
+
+By default the extension installs only the files the mod loaders need, without their folders:
+
+- MelonLoader: `.dll` files go into `Mods`, `.cfg` files into `UserData`.
+- BepInEx: `.dll` files go into `BepInEx/plugins`. Archives whose top-level folder is `plugins`, `config` or `patchers` are placed inside `BepInEx` by Vortex's built-in BepInEx support.
+
+Everything else in the archive is skipped. If your mod needs other files or a specific folder layout, add `_keepstructure` (see below). A typical MelonLoader mod looks like this:
 
 ```txt
 |--> Mods
@@ -152,14 +173,34 @@ To make your mod compatible your mod needs to be created for the MelonLoader. If
   |--> mod2.dll
 ```
 
-If you have a file for example a font that needs to go in the UserData folder it would look like this;
+#### Which mod loader is used
+
+1. A marker file: `_melonloader` or `_bepinex`.
+2. A path in the archive that mentions `MelonLoader` or `BepInEx`.
+3. The mod loader that's installed. BepInEx is only chosen if MelonLoader isn't installed.
+4. Otherwise MelonLoader.
+
+#### Marker files
+
+Add an empty file with one of these names anywhere in your archive. The names are case-insensitive, and the marker files themselves are never installed.
+
+| File | Effect |
+| --- | --- |
+| `_melonloader` | Installs the mod for MelonLoader. |
+| `_bepinex` | Installs the mod for BepInEx. |
+| `_keepstructure` | Installs the archive's folders as they are, relative to the game folder. |
+
+If you have a file for example a font that needs to go in the UserData folder, add `_keepstructure` and use the folders of the game:
 
 ```txt
+|--> _keepstructure
 |--> Mods
   |--> mod1.dll
   |--> mod2.dll
 |--> UserData
   |--> font.ttf
 ```
+
+MelonLoader and BepInEx release zips can also be installed through Vortex like a mod.
 
 [!["Buy me a Floppy Disk"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/der_floh)
