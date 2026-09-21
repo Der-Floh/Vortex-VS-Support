@@ -5,10 +5,9 @@
         "strict": true,
         "esModuleInterop": true,
         "outDir": "./out",
-        "rootDir": ".",
+        "rootDir": "./src",
         "declaration": false,
-        "sourceMap": false,
-        "inlineSourceMap": true,
+        "sourceMap": true,
         "inlineSources": true,
         "skipLibCheck": true,
         "types": [
@@ -16,11 +15,6 @@
         ]
     },
     "include": [
-        "**/*.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "out",
-        "Vortex"
+        "src/**/*.ts"
     ]
 }

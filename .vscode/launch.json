@@ -19,9 +19,7 @@
             "name": "Attach Main Process",
             "port": 9229,
             "sourceMapPathOverrides": {
-                "c:/Users/*/AppData/Roaming/Vortex/plugins/${workspaceFolderBasename}/index.ts": "${workspaceFolder}/index.ts",
-                "../index.ts": "${workspaceFolder}/index.ts",
-                "index.ts": "${workspaceFolder}/index.ts"
+                "vs-support:///*": "${workspaceFolder}/*"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -35,9 +33,7 @@
             "webRoot": "${workspaceFolder}",
             "sourceMaps": true,
             "sourceMapPathOverrides": {
-                "c:/Users/*/AppData/Roaming/Vortex/plugins/${workspaceFolderBasename}/index.ts": "${workspaceFolder}/index.ts",
-                "../index.ts": "${workspaceFolder}/index.ts",
-                "index.ts": "${workspaceFolder}/index.ts"
+                "vs-support:///*": "${workspaceFolder}/*"
             }
         }
     ]

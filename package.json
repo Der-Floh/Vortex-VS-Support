@@ -1,10 +1,14 @@
 {
     "name": "vs-support",
+    "displayName": "Vampire Survivors",
     "version": "2.3.0",
     "private": true,
     "devDependencies": {
+        "@rollup/plugin-typescript": "^12.3.0",
         "@types/bluebird": "^3.5.42",
         "@types/node": "^25.2.3",
+        "rollup": "^4.63.4",
+        "tslib": "^2.8.1",
         "typedoc": "^0.28.17",
         "typedoc-material-theme": "^1.4.1",
         "typedoc-plugin-missing-exports": "^4.1.2",
@@ -12,13 +16,15 @@
         "vortex-api": "git+https://github.com/Nexus-Mods/vortex-api.git"
     },
     "scripts": {
-        "build": "tsc -p tsconfig.json && node .vscode/build/invoke-ps.js .vscode/build/populate-pack.ps1",
-        "watch": "tsc -watch -p ./",
+        "clean": "node -e \"require('fs').rmSync('out', { recursive: true, force: true })\"",
+        "prebuild": "npm run clean",
+        "typecheck": "tsc --noEmit -p tsconfig.json",
+        "build": "rollup -c rollup.config.mjs && node .vscode/build/invoke-ps.js .vscode/build/populate-pack.ps1",
+        "watch": "rollup -c rollup.config.mjs --watch",
         "docs": "typedoc",
         "build:docs": "npm run build && npm run docs",
-        "package": "npm run build && node .vscode/build/invoke-ps.js .vscode/build/package-zip.ps1",
+        "package": "npm run typecheck && npm run build && node .vscode/build/invoke-ps.js .vscode/build/package-zip.ps1",
         "install-deps": "npm install --ignore-scripts",
-        "install-vortex-api": "npm install --ignore-scripts --save-dev git+https://github.com/Nexus-Mods/vortex-api.git",
-        "install-winapi-bindings": "npm install --ignore-scripts --save-dev git+https://github.com/Nexus-Mods/node-winapi-bindings.git"
+        "install-vortex-api": "npm install --ignore-scripts --save-dev git+https://github.com/Nexus-Mods/vortex-api.git"
     }
 }

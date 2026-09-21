@@ -1,7 +1,8 @@
 {
     "entryPoints": [
-        "index.ts"
+        "src"
     ],
+    "entryPointStrategy": "expand",
     "out": "docs",
     "tsconfig": "tsconfig.json",
     "name": "Vampire Survivors Support",

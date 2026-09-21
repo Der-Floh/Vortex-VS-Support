@@ -2,17 +2,19 @@
 # - Copies the entire out/ tree to .pack/ (preserving structure)
 # - Finds the most top-level gameart image and copies it to .pack/
 # - Finds the most top-level info.json and copies it to .pack/
-# Excludes: node_modules, .pack, out, .git, .vscode, docs, assets
+# Skips the folders listed under Packaging.ExcludedDirs in build-config.ps1
 
 param(
     [string]$WorkspaceFolder = (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
 )
 
-$packDir = Join-Path $WorkspaceFolder ".pack"
-$outDir = Join-Path $WorkspaceFolder "out"
+. (Join-Path $PSScriptRoot "build-config.ps1")
+
+$packDir = Get-PackDir -WorkspaceFolder $WorkspaceFolder
+$outDir = Get-OutDir -WorkspaceFolder $WorkspaceFolder
 
 # Folders to skip when searching for gameart / info.json
-$excludedDirs = @("node_modules", ".pack", "out", ".git", ".vscode", "docs", "assets")
+$excludedDirs = Get-PackagingExcludedDirs
 
 # -- Clear and recreate .pack --------------------------------------------------
 if (Test-Path $packDir) {
@@ -22,7 +24,7 @@ New-Item -ItemType Directory -Path $packDir -Force | Out-Null
 
 # -- Copy out/ tree into .pack/ ------------------------------------------------
 if (-not (Test-Path $outDir)) {
-    throw "out/ directory not found. Run 'tsc' first."
+    throw "out/ directory not found. Run 'npm run build' first."
 }
 Copy-Item -Path (Join-Path $outDir "*") -Destination $packDir -Recurse -Force
 
