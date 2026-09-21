@@ -48,16 +48,11 @@ function main(context: types.IExtensionContext): boolean {
         () => Bluebird.resolve(false),
         { mergeMods: true, name: 'Game Root' });
 
-    context.registerInstaller(INSTALLERS.melonLoaderPackage.id, INSTALLERS.melonLoaderPackage.priority,
-        testSupportedMelonLoaderPackage, installMelonLoaderPackage);
-    context.registerInstaller(INSTALLERS.marked.id, INSTALLERS.marked.priority,
-        testSupportedMarkedArchive, (files) => installMarkedArchive(files, context.api));
-    context.registerInstaller(INSTALLERS.oldEngine.id, INSTALLERS.oldEngine.priority,
-        testSupportedContentOldEngine, installContentOldEngine);
-    context.registerInstaller(INSTALLERS.bepInEx.id, INSTALLERS.bepInEx.priority,
-        (files, gameId) => testSupportedContentNewEngineBepInEx(files, gameId, context.api), installContentNewEngineBepInEx);
-    context.registerInstaller(INSTALLERS.melonLoader.id, INSTALLERS.melonLoader.priority,
-        (files, gameId) => testSupportedContentNewEngineMelonLoader(files, gameId, context.api), installContentNewEngineMelonLoader);
+    context.registerInstaller(INSTALLERS.melonLoaderPackage.id, INSTALLERS.melonLoaderPackage.priority, testSupportedMelonLoaderPackage, installMelonLoaderPackage);
+    context.registerInstaller(INSTALLERS.marked.id, INSTALLERS.marked.priority, testSupportedMarkedArchive, (files) => installMarkedArchive(files, context.api));
+    context.registerInstaller(INSTALLERS.oldEngine.id, INSTALLERS.oldEngine.priority, testSupportedContentOldEngine, installContentOldEngine);
+    context.registerInstaller(INSTALLERS.bepInEx.id, INSTALLERS.bepInEx.priority, (files, gameId) => testSupportedContentNewEngineBepInEx(files, gameId, context.api), installContentNewEngineBepInEx);
+    context.registerInstaller(INSTALLERS.melonLoader.id, INSTALLERS.melonLoader.priority, (files, gameId) => testSupportedContentNewEngineMelonLoader(files, gameId, context.api), installContentNewEngineMelonLoader);
 
     context.once(() => {
         registerBepInExSupport(context.api);
