@@ -1,0 +1,14 @@
+{
+	"files.exclude": {
+		".pack": false,
+		"out": false,
+		"node_modules": true,
+	},
+	"search.exclude": {
+		".pack": true,
+		"out": true,
+		"node_modules": true,
+	},
+	"js/ts.tsc.autoDetect": "off",
+	"debug.onTaskErrors": "abort"
+}

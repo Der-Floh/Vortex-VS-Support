@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "ES2022",
+        "strict": true,
+        "esModuleInterop": true,
+        "outDir": "./out",
+        "rootDir": ".",
+        "declaration": false,
+        "sourceMap": false,
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "skipLibCheck": true,
+        "types": [
+            "node"
+        ]
+    },
+    "include": [
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "out",
+        "Vortex"
+    ]
+}

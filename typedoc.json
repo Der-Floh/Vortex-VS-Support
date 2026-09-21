@@ -1,0 +1,24 @@
+{
+    "entryPoints": [
+        "index.ts"
+    ],
+    "out": "docs",
+    "tsconfig": "tsconfig.json",
+    "name": "Vampire Survivors Support",
+    "plugin": [
+        "typedoc-material-theme",
+        "typedoc-plugin-missing-exports"
+    ],
+    "themeColor": "#007acc",
+    "includeVersion": true,
+    "readme": "README.md",
+    "projectDocuments": [
+        "support-lists/support-list-new-engine.md",
+        "support-lists/support-list-old-engine.md"
+    ],
+    "placeInternalsInOwningModule": true,
+    "excludePrivate": true,
+    "excludeProtected": false,
+    "excludeInternal": true,
+    "categorizeByGroup": true,
+}

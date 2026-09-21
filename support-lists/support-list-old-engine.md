@@ -1,4 +1,19 @@
-# Supported Old Engine - Base
+---
+title: Support-List Old Engine
+group: Support-Lists
+---
+
+## Supported Old Engine - Mod Loader
+
+- [Multiperpose QoL Mod](https://www.nexusmods.com/vampiresurvivors/mods/50)
+- [Extended Power Up Levels](https://www.nexusmods.com/vampiresurvivors/mods/60) (ModLoader Version)
+- [Castlevania Survivors](https://www.nexusmods.com/vampiresurvivors/mods/61)
+- [Eggs Bulk Buy](https://www.nexusmods.com/vampiresurvivors/mods/63)
+- [VS Mod Loader](https://www.nexusmods.com/vampiresurvivors/mods/64)
+- [Movement Speed Cap](https://www.nexusmods.com/vampiresurvivors/mods/65)
+
+## Supported Old Engine - Base
+
 - [Simple Rebalance mod](https://www.nexusmods.com/vampiresurvivors/mods/1)
 - [NG plus](https://www.nexusmods.com/vampiresurvivors/mods/3)
 - [Equal Power-Ups and Passives (0.5.205)](https://www.nexusmods.com/vampiresurvivors/mods/5)
@@ -25,15 +40,8 @@
 - [Better Lama Armor](https://www.nexusmods.com/vampiresurvivors/mods/80)
 - [Chicken Good and Leeloo Dallas Multipass](https://www.nexusmods.com/vampiresurvivors/mods/81)
 
-# Supported Old Engine - Mod Loader
-- [Multiperpose QoL Mod](https://www.nexusmods.com/vampiresurvivors/mods/50)
-- [Extended Power Up Levels](https://www.nexusmods.com/vampiresurvivors/mods/60) (ModLoader Version)
-- [Castlevania Survivors](https://www.nexusmods.com/vampiresurvivors/mods/61)
-- [Eggs Bulk Buy](https://www.nexusmods.com/vampiresurvivors/mods/63)
-- [VS Mod Loader](https://www.nexusmods.com/vampiresurvivors/mods/64)
-- [Movement Speed Cap](https://www.nexusmods.com/vampiresurvivors/mods/65)
+## NOT SUPPORTED Old Engine - Base
 
-# NOT SUPPORTED Old Engine - Base
 - [Madoka Mod for Vampire Survivors](https://www.nexusmods.com/vampiresurvivors/mods/6) (Reason: No "Assets" Folder present)
 - [Asmonbald the brave Knight - Perks and Weapons Overhaul](https://www.nexusmods.com/vampiresurvivors/mods/13) (Reason: Top Folder has to be "Assets" instead of "mods")
 - [Anime Main Menu Replacer](https://www.nexusmods.com/vampiresurvivors/mods/14) (Reason: Top Folder has to be "Renderer" instead of "Anime Main Menu mod - Copy")
@@ -54,6 +62,3 @@
 - [Exorcism Mod Port - Divine Comedy](https://www.nexusmods.com/vampiresurvivors/mods/77) (Reason: Top Folder has to be "Resources" instead of "exorcism port")
 - [Suomi kaannos - Finnish translation](https://www.nexusmods.com/vampiresurvivors/mods/78) (Reason: No "Assets" Folder present)
 - [Vividly Vivi Character Mod](https://www.nexusmods.com/vampiresurvivors/mods/83) (Reason: No "Assets" Folder present)
-
-# NOT SUPPORTED Old Engine - Mod Loader
-- none

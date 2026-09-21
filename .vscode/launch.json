@@ -1,0 +1,44 @@
+{
+    "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Attach to Vortex",
+            "configurations": [
+                "Attach Main Process",
+                "Attach Renderer Process"
+            ],
+            "preLaunchTask": "Build+Deploy+Start Vortex",
+            "stopAll": true,
+            "postDebugTask": "Stop Vortex"
+        }
+    ],
+    "configurations": [
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Attach Main Process",
+            "port": 9229,
+            "sourceMapPathOverrides": {
+                "c:/Users/*/AppData/Roaming/Vortex/plugins/${workspaceFolderBasename}/index.ts": "${workspaceFolder}/index.ts",
+                "../index.ts": "${workspaceFolder}/index.ts",
+                "index.ts": "${workspaceFolder}/index.ts"
+            },
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "chrome",
+            "request": "attach",
+            "name": "Attach Renderer Process",
+            "port": 9222,
+            "webRoot": "${workspaceFolder}",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "c:/Users/*/AppData/Roaming/Vortex/plugins/${workspaceFolderBasename}/index.ts": "${workspaceFolder}/index.ts",
+                "../index.ts": "${workspaceFolder}/index.ts",
+                "index.ts": "${workspaceFolder}/index.ts"
+            }
+        }
+    ]
+}

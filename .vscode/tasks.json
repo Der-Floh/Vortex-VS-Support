@@ -1,0 +1,72 @@
+// See https://go.microsoft.com/fwlink/?LinkId=733558
+// for the documentation about the tasks.json format
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "watch",
+			"label": "npm: watch",
+			"problemMatcher": "$tsc-watch",
+			"group": "build",
+			"isBackground": true,
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"presentation": {
+				"reveal": "never",
+				"panel": "shared"
+			},
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"label": "npm: build",
+			"detail": "npm run build",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": "$tsc",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
+		},
+		{
+			"type": "npm",
+			"script": "package",
+			"problemMatcher": [],
+			"label": "package",
+			"detail": "npm run package",
+		},
+		{ // Builds, deploys, and starts Vortex — stops on first failure so the debugger won't try to attach
+			"label": "Build+Deploy+Start Vortex",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"${workspaceFolder}/.vscode/build/invoke-ps.js",
+				"${workspaceFolder}/.vscode/build/build-deploy-start.ps1"
+			],
+			"problemMatcher": "$tsc",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
+		},
+		{ // Stops Vortex after a debug session ends
+			"label": "Stop Vortex",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"${workspaceFolder}/.vscode/build/invoke-ps.js",
+				"${workspaceFolder}/.vscode/build/stop-vortex.ps1"
+			],
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "never",
+				"panel": "shared"
+			}
+		}
+	]
+}
